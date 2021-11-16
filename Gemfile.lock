@@ -1,0 +1,19 @@
+PATH
+  remote: .
+  specs:
+    Rephrase (0.1)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.11.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  Rephrase!
+  minitest (= 5.11.3)
+
+BUNDLED WITH
+   2.1.4
