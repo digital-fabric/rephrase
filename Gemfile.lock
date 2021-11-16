@@ -1,21 +1,21 @@
 PATH
   remote: .
   specs:
-    Rephrase (0.1)
+    rephrase (0.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.11.3)
-    rake (13.0.6)
+    rake (12.3.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  Rephrase!
   minitest (= 5.11.3)
-  rake (>= 12.0)
+  rake (~> 12.0)
+  rephrase!
 
 BUNDLED WITH
    2.1.4
