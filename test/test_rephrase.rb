@@ -1,8 +1,20 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'minitest/autorun'
 require 'rephrase'
 
-class RephraseTest < Minitest::Test
+class APITest < Minitest::Test
+  def test_to_ruby
+    a = 1
+    b = 2
+    example = proc { a * b }
+    source = Rephrase.to_ruby(example)
+    assert_equal "proc do\na * b\nend", source
+  end
+end
+
+class CodeConversionTest < Minitest::Test
   def ast_to_ruby(o = nil, &block)
     o ||= block
     ast = RubyVM::AbstractSyntaxTree.of(o)

@@ -34,7 +34,7 @@ class Rephrase
   # @return [String] converted source code
   def self.to_ruby(code)
     ast = RubyVM::AbstractSyntaxTree.of(code)
-    new.convert({}, node)
+    new.convert({}, ast)
   end
 
   # Pretty-prints an AST
