@@ -5,24 +5,9 @@ require 'rephrase'
 class RephraseTest < Minitest::Test
   def ast_to_ruby(o = nil, &block)
     o ||= block
-    node = RubyVM::AbstractSyntaxTree.of(o)
-    # pp_ast(node)
-    Rephrase.new.convert({}, node)#.tap { |o| puts '*' * 40; puts o; puts }
-  end
-
-  def pp_ast(node, level = 0)
-    case node
-    when RubyVM::AbstractSyntaxTree::Node
-      puts "#{'  ' * level}#{node.type.inspect} (#{node.first_lineno})"
-      node.children.each { |c| pp_ast(c, level + 1) }
-    when Array
-      puts "#{'  ' * level}["
-      node.each { |c| pp_ast(c, level + 1) }
-      puts "#{'  ' * level}]"
-    else
-      puts "#{'  ' * level}#{node.inspect}"
-      return
-    end
+    ast = RubyVM::AbstractSyntaxTree.of(o)
+    # Rephrase.pp_ast(ast)
+    Rephrase.new.convert({}, ast)#.tap { |o| puts '*' * 40; puts o; puts }
   end
 
   module A
