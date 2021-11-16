@@ -1,7 +1,7 @@
 require_relative './lib/rephrase/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'Rephrase'
+  s.name        = 'rephrase'
   s.version     = Rephrase::VERSION
   s.licenses    = ['MIT']
   s.summary     = 'Rephrase: a gem for manipulating Ruby code'
@@ -18,5 +18,5 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7'
 
   s.add_development_dependency 'minitest', '5.11.3'
-  s.add_development_dependency 'rake', '>=12.0'
+  s.add_development_dependency 'rake', '~>12.0'
 end
