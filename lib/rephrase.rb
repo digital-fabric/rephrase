@@ -32,7 +32,7 @@ class Rephrase
   # Converts a :block or method to its source code
   # @param code [Proc, BoundMethod, UnboundMethod] proc or method
   # @return [String] converted source code
-  def self.to_ruby(code)
+  def self.to_source(code)
     ast = RubyVM::AbstractSyntaxTree.of(code)
     new.convert({}, ast)
   end

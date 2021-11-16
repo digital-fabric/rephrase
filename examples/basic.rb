@@ -5,5 +5,5 @@ require 'rephrase'
 
 example = proc { a * b }
 
-code = Rephrase.to_ruby(example)
+code = Rephrase.to_source(example)
 puts code

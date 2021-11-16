@@ -5,17 +5,17 @@ require 'minitest/autorun'
 require 'rephrase'
 
 class APITest < Minitest::Test
-  def test_to_ruby
+  def test_to_source
     a = 1
     b = 2
     example = proc { a * b }
-    source = Rephrase.to_ruby(example)
+    source = Rephrase.to_source(example)
     assert_equal "proc do\na * b\nend", source
   end
 end
 
 class CodeConversionTest < Minitest::Test
-  def ast_to_ruby(o = nil, &block)
+  def ast_to_source(o = nil, &block)
     o ||= block
     ast = RubyVM::AbstractSyntaxTree.of(o)
     # Rephrase.pp_ast(ast)
@@ -30,199 +30,199 @@ class CodeConversionTest < Minitest::Test
   end
 
   def test_const1
-    code = ast_to_ruby { foo A }
+    code = ast_to_source { foo A }
     assert_equal "proc do\nfoo(A)\nend", code
   end
 
   def test_const2
-    code = ast_to_ruby { foo A::B }
+    code = ast_to_source { foo A::B }
     assert_equal "proc do\nfoo(A::B)\nend", code
   end
 
   def test_const3
-    code = ast_to_ruby { foo A::B::C }
+    code = ast_to_source { foo A::B::C }
     assert_equal "proc do\nfoo(A::B::C)\nend", code
   end
 
   def test_const4
-    code = ast_to_ruby { foo A::B::C.d }
+    code = ast_to_source { foo A::B::C.d }
     assert_equal "proc do\nfoo(A::B::C.d())\nend", code
   end
 
   def test_str1
-    code = ast_to_ruby { 'a' }
+    code = ast_to_source { 'a' }
     assert_equal "proc do\n\"a\"\nend", code
   end
 
   def test_str2
-    code = ast_to_ruby { "a\nb" }
+    code = ast_to_source { "a\nb" }
     assert_equal "proc do\n\"a\\nb\"\nend", code
   end
 
   def test_nil1
-    code = ast_to_ruby { foo(nil) }
+    code = ast_to_source { foo(nil) }
     assert_equal "proc do\nfoo(nil)\nend", code
   end
 
   def test_true1
-    code = ast_to_ruby { foo(true) }
+    code = ast_to_source { foo(true) }
     assert_equal "proc do\nfoo(true)\nend", code
   end
 
   def test_false1
-    code = ast_to_ruby { foo(false) }
+    code = ast_to_source { foo(false) }
     assert_equal "proc do\nfoo(false)\nend", code
   end
 
   def test_fcall1
-    code = ast_to_ruby { p 1 }
+    code = ast_to_source { p 1 }
     assert_equal "proc do\np(1)\nend", code
   end
 
   def test_fcall2
-    code = ast_to_ruby { foo :a, :b, :c }
+    code = ast_to_source { foo :a, :b, :c }
     assert_equal "proc do\nfoo(:a, :b, :c)\nend", code
   end
 
   def test_fcall3
-    code = ast_to_ruby { foo a: 1, b: 2 }
+    code = ast_to_source { foo a: 1, b: 2 }
     assert_equal "proc do\nfoo({:a => 1, :b => 2})\nend", code
   end
 
   def test_fcall4
-    code = ast_to_ruby { foo 'bar', a: 1, b: 2 }
+    code = ast_to_source { foo 'bar', a: 1, b: 2 }
     assert_equal "proc do\nfoo(\"bar\", {:a => 1, :b => 2})\nend", code
   end
 
   def test_fcall5
-    code = ast_to_ruby { foo('bar', a: 1, b: 2) { |x| x + 1 } }
+    code = ast_to_source { foo('bar', a: 1, b: 2) { |x| x + 1 } }
     assert_equal "proc do\nfoo(\"bar\", {:a => 1, :b => 2}) do |x|\nx + 1\nend\nend", code
   end
 
   def test_fcall6
-    code = ast_to_ruby { foo { bar { baz 'a' } } }
+    code = ast_to_source { foo { bar { baz 'a' } } }
     assert_equal "proc do\nfoo() do\nbar() do\nbaz(\"a\")\nend\nend\nend", code
   end
 
   def test_vcall1
-    code = ast_to_ruby { foo; bar }
+    code = ast_to_source { foo; bar }
     assert_equal "proc do\nfoo()\nbar()\nend", code
   end
 
   def test_assign1
-    code = ast_to_ruby { a = 1; p a }
+    code = ast_to_source { a = 1; p a }
     assert_equal "proc do\na = 1\np(a)\nend", code
   end
 
   def test_assign2
-    code = ast_to_ruby { a = 2 + 2 }
+    code = ast_to_source { a = 2 + 2 }
     assert_equal "proc do\na = 2 + 2\nend", code
   end
 
   def test_ternary1
-    code = ast_to_ruby { foo ? bar : baz }
+    code = ast_to_source { foo ? bar : baz }
     assert_equal "proc do\nif foo()\nbar()\nelse\nbaz()\nend\nend", code
   end
 
   def test_if_guard1
-    code = ast_to_ruby { foo if baz }
+    code = ast_to_source { foo if baz }
     assert_equal "proc do\nif baz()\nfoo()\nend\nend", code
   end
 
   def test_if1
-    code = ast_to_ruby { if foo; baz; end }
+    code = ast_to_source { if foo; baz; end }
     assert_equal "proc do\nif foo()\nbaz()\nend\nend", code
   end
 
   def test_and1
-    code = ast_to_ruby { if foo && bar; baz; end }
+    code = ast_to_source { if foo && bar; baz; end }
     assert_equal "proc do\nif foo() && bar()\nbaz()\nend\nend", code
   end
 
   def test_or1
-    code = ast_to_ruby { if foo || bar; baz; end }
+    code = ast_to_source { if foo || bar; baz; end }
     assert_equal "proc do\nif foo() || bar()\nbaz()\nend\nend", code
   end
 
   def test_not1
-    code = ast_to_ruby { foo if !bar }
+    code = ast_to_source { foo if !bar }
     assert_equal "proc do\nif !(bar())\nfoo()\nend\nend", code
   end
 
   def test_not2
-    code = ast_to_ruby { a = !b }
+    code = ast_to_source { a = !b }
     assert_equal "proc do\na = !(b())\nend", code
   end
 
   def test_eq1
-    code = ast_to_ruby { foo if bar == baz }
+    code = ast_to_source { foo if bar == baz }
     assert_equal "proc do\nif bar() == baz()\nfoo()\nend\nend", code
   end
 
   def test_local1
     a = 1
-    code = ast_to_ruby { foo(a) }
+    code = ast_to_source { foo(a) }
     assert_equal "proc do\nfoo(a)\nend", code
   end
 
   def test_local2
     a = 1
-    code = ast_to_ruby { a.foo }
+    code = ast_to_source { a.foo }
     assert_equal "proc do\na.foo()\nend", code
   end
 
   def test_call1
     a = 1
-    code = ast_to_ruby { a.foo(1) }
+    code = ast_to_source { a.foo(1) }
     assert_equal "proc do\na.foo(1)\nend", code
   end
 
   def test_call2
     a = 1
-    code = ast_to_ruby { a.foo(1, 'a') }
+    code = ast_to_source { a.foo(1, 'a') }
     assert_equal "proc do\na.foo(1, \"a\")\nend", code
   end
 
   def test_call3
     a = 1
-    code = ast_to_ruby { a.foo(1, [bar]) }
+    code = ast_to_source { a.foo(1, [bar]) }
     assert_equal "proc do\na.foo(1, [bar()])\nend", code
   end
 
   def test_subscript1
     a = 1
-    code = ast_to_ruby { foo a[:bar] }
+    code = ast_to_source { foo a[:bar] }
     assert_equal "proc do\nfoo(a[:bar])\nend", code
   end
 
   def test_subscript2
     a = 1
-    code = ast_to_ruby { a[1] = b }
+    code = ast_to_source { a[1] = b }
     assert_equal "proc do\na[1] = b()\nend", code
   end
 
   def test_subscript3
     a = 1
-    code = ast_to_ruby { a[:foo, 'bar'] = b }
+    code = ast_to_source { a[:foo, 'bar'] = b }
     assert_equal "proc do\na[:foo, \"bar\"] = b()\nend", code
   end
 
   def test_interpolated_string1
     a = 1
     b = 2
-    code = ast_to_ruby { foo "--#{a.to_s(16)}**\nbar#{b + 1}" }
+    code = ast_to_source { foo "--#{a.to_s(16)}**\nbar#{b + 1}" }
     assert_equal "proc do\nfoo(\"--\#{a.to_s(16)}**\\nbar\#{b + 1}\")\nend", code
   end
 
   def test_interpolated_string2
     a = 1
     b = 2
-    code = ast_to_ruby { foo "#{0}--#{1}**\nbar#{2}\t#{3}" }
+    code = ast_to_source { foo "#{0}--#{1}**\nbar#{2}\t#{3}" }
     assert_equal "proc do\nfoo(\"\#{0}--\#{1}**\\nbar\#{2}\\t\#{3}\")\nend", code
   end
 
   def test_array1
-    code = ast_to_ruby { 
+    code = ast_to_source { 
       a = [1, 2, 3]
       foo(a)
     }
@@ -231,7 +231,7 @@ class CodeConversionTest < Minitest::Test
   end
 
   def test_hash1
-    code = ast_to_ruby { 
+    code = ast_to_source { 
       a = { a: 1, 'blah' => 2 }
       foo(a)
     }
@@ -239,22 +239,22 @@ class CodeConversionTest < Minitest::Test
   end
 
   def test_ivar1
-    code = ast_to_ruby { foo @bar }
+    code = ast_to_source { foo @bar }
     assert_equal "proc do\nfoo(@bar)\nend", code
   end
 
   def test_ivar2
-    code = ast_to_ruby { @bar = foo }
+    code = ast_to_source { @bar = foo }
     assert_equal "proc do\n@bar = foo()\nend", code
   end
 
   def test_unless1
-    code = ast_to_ruby { foo(:bar) unless 1 }
+    code = ast_to_source { foo(:bar) unless 1 }
     assert_equal "proc do\nunless 1\nfoo(:bar)\nend\nend", code
   end
 
   def test_unless2
-    code = ast_to_ruby {
+    code = ast_to_source {
       unless 1
         foo
       else
@@ -265,14 +265,14 @@ class CodeConversionTest < Minitest::Test
   end
 
   def test_while1
-    code = ast_to_ruby {
+    code = ast_to_source {
       foo while bar
     }
     assert_equal "proc do\nwhile bar()\nfoo()\nend\nend", code
   end
 
   def test_while2
-    code = ast_to_ruby {
+    code = ast_to_source {
       while 1 && 2
         foo
       end
@@ -283,7 +283,7 @@ class CodeConversionTest < Minitest::Test
   ##############################################################################
 
   def test_real_world1
-    code = ast_to_ruby {
+    code = ast_to_source {
       rss(version: '2.0', 'xmlns:atom' => 'http://www.w3.org/2005/Atom') {
         channel {
           title 'Noteflakes'
