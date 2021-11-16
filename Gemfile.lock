@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rephrase (0.1)
+    rephrase (0.2)
 
 GEM
   remote: https://rubygems.org/
