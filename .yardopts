@@ -1,0 +1,7 @@
+-m markdown
+-M kramdown
+-o ./_yardoc
+-r ./README.md
+--verbose
+--protected
+./lib/rephrase.rb

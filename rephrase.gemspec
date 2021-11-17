@@ -10,7 +10,8 @@ Gem::Specification.new do |s|
   s.files       = `git ls-files README.md CHANGELOG.md lib`.split
   s.homepage    = 'http://github.com/digital-fabric/rephrase'
   s.metadata    = {
-    "source_code_uri" => "https://github.com/digital-fabric/rephrase"
+    "source_code_uri" => "https://github.com/digital-fabric/rephrase",
+    'documentation_uri' => "https://www.rubydoc.info/gems/rephrase/#{s.version}",
   }
   s.rdoc_options = ["--title", "Rephrase", "--main", "README.md"]
   s.extra_rdoc_files = ["README.md"]
@@ -19,4 +20,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'minitest', '5.11.3'
   s.add_development_dependency 'rake', '~>12.0'
+
+  s.add_development_dependency 'yard'
+  s.add_development_dependency 'kramdown'
 end

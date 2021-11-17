@@ -6,21 +6,27 @@
 class Rephrase
   # Class for faking a node
   class FakeNode
-    # Constructs a FakeNode with type `:LIST_EMBEDDED`
+    # Constructs a FakeNode with type `:LIST_EMBEDDED`.
     # @param children [Array] child nodes
     def self.list(children)
       new(:LIST_EMBEDDED, children)
     end
 
-    # Constructs a FakeNode with type `:ITER_SCOPE`
+    # Constructs a FakeNode with type `:ITER_SCOPE`.
     # @param children [Array] child nodes
     def self.iter_scope(children)
       new(:ITER_SCOPE, children)
     end
 
-    attr_reader :type, :children
+    # Node type
+    # @return [Symbol]
+    attr_reader :type
+
+    # Node children
+    # @return [Array]
+    attr_reader :children
     
-    # Initializes a FakeNode
+    # Initializes a FakeNode.
     # @param type [Symbol] node type
     # @param children [Array] child nodes
     def initialize(type, children)
@@ -29,7 +35,7 @@ class Rephrase
     end
   end
   
-  # Converts a :block or method to its source code
+  # Converts a block or method to its source code.
   # @param code [Proc, BoundMethod, UnboundMethod] proc or method
   # @return [String] converted source code
   def self.to_source(code)
@@ -37,7 +43,7 @@ class Rephrase
     new.convert({}, ast)
   end
 
-  # Pretty-prints an AST
+  # Pretty-prints an AST.
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def self.pp_ast(node, level = 0)
     case node
@@ -54,7 +60,7 @@ class Rephrase
     end
   end
 
-  # Converts an AST node to a string containing its source code
+  # Converts an AST node to a string containing its source code.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   # @return [String] source code
@@ -71,7 +77,7 @@ class Rephrase
     ctx[:buffer]
   end
 
-  # Converts a :SCOPE AST node
+  # Converts a `:SCOPE` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_scope(ctx, node)
@@ -82,7 +88,7 @@ class Rephrase
     emit(ctx, "proc do", [body], "end")
   end
 
-  # Converts a :BLOCK AST node
+  # Converts a `:BLOCK` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_block(ctx, node)
@@ -93,7 +99,7 @@ class Rephrase
     end
   end
 
-  # Converts a :ITER AST node
+  # Converts a `:ITER` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_iter(ctx, node)
@@ -102,7 +108,7 @@ class Rephrase
     emit(ctx, FakeNode.iter_scope(scope.children))
   end
 
-  # Converts a :ITER_SCOPE AST (fake) node
+  # Converts a `:ITER_SCOPE` AST (fake) node.
   # @param ctx [Hash] context object
   # @param node [Rephrase::FakeNode] AST node
   def on_iter_scope(ctx, node)
@@ -114,14 +120,14 @@ class Rephrase
     emit(ctx, "\nend")
   end
 
-  # Converts a :CONST AST node
+  # Converts a `:CONST` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_const(ctx, node)
     emit(ctx, node.children.first.to_s)
   end
 
-  # Converts a :COLON2 AST node
+  # Converts a `:COLON2` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_colon2(ctx, node)
@@ -129,7 +135,7 @@ class Rephrase
     emit(ctx, left, "::", right.to_s)
   end
 
-  # Converts a :CALL AST node
+  # Converts a `:CALL` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_call(ctx, node)
@@ -147,7 +153,7 @@ class Rephrase
     end
   end
 
-  # Converts a :FCALL AST node
+  # Converts a `:FCALL` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_fcall(ctx, node)
@@ -156,14 +162,14 @@ class Rephrase
     emit(ctx, "#{method}(", args, ")")
   end
 
-  # Converts a :VCALL AST node
+  # Converts a `:VCALL` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_vcall(ctx, node)
     emit(ctx, node.children.first.to_s, "()")
   end
 
-  # Converts a :OPCALL AST node
+  # Converts a `:OPCALL` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_opcall(ctx, node)
@@ -175,7 +181,7 @@ class Rephrase
     end
   end
 
-  # Converts a :DASGN_CURR AST node
+  # Converts a `:DASGN_CURR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_dasgn_curr(ctx, node)
@@ -183,7 +189,7 @@ class Rephrase
     emit(ctx, left.to_s, " = ", right)
   end
 
-  # Converts a :IASGN AST node
+  # Converts a `:IASGN` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_iasgn(ctx, node)
@@ -191,7 +197,7 @@ class Rephrase
     emit(ctx, left.to_s, " = ", right)
   end
 
-  # Converts a :IF AST node
+  # Converts a `:IF AST` node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_if(ctx, node)
@@ -203,7 +209,7 @@ class Rephrase
     end
   end
 
-  # Converts a :UNLESS AST node
+  # Converts a `:UNLESS` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_unless(ctx, node)
@@ -215,7 +221,7 @@ class Rephrase
     end
   end
 
-  # Converts a :WHILE AST node
+  # Converts a `:WHILE` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_while(ctx, node)
@@ -223,56 +229,56 @@ class Rephrase
     emit(ctx, "while ", cond, "\n", body, "\nend")
   end
 
-  # Converts a :LIT AST node
+  # Converts a `:LIT` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_lit(ctx, node)
     emit(ctx, node.children.first.inspect)
   end
 
-  # Converts a :NIL AST node
+  # Converts a `:NIL` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_nil(ctx, node)
     emit(ctx, "nil")
   end
 
-  # Converts a :TRUE AST node
+  # Converts a `:TRUE` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_true(ctx, node)
     emit(ctx, "true")
   end
 
-  # Converts a :FALSE AST node
+  # Converts a `:FALSE` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_false(ctx, node)
     emit(ctx, "false")
   end
 
-  # Converts a :DVAR AST node
+  # Converts a `:DVAR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_dvar(ctx, node)
     emit(ctx, node.children.first.to_s)
   end
 
-  # Converts a :IVAR AST node
+  # Converts a `:IVAR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_ivar(ctx, node)
     emit(ctx, node.children.first.to_s)
   end
 
-  # Converts a :STR AST node
+  # Converts a `:STR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_str(ctx, node)
     emit(ctx, node.children.first.inspect)
   end
 
-  # Converts a :DSTR AST node
+  # Converts a `:DSTR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_dstr(ctx, node)
@@ -293,14 +299,14 @@ class Rephrase
     emit(ctx, "\"")
   end
 
-  # Converts a :EVSTR AST node
+  # Converts a `:EVSTR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_evstr(ctx, node)
     emit(ctx, "\#{", node.children.first, "}")
   end
 
-  # Converts a :AND AST node
+  # Converts a `:AND` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_and(ctx, node)
@@ -308,7 +314,7 @@ class Rephrase
     emit(ctx, left, " && ", right)
   end
 
-  # Converts a :OR AST node
+  # Converts a `:OR` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_or(ctx, node)
@@ -316,7 +322,7 @@ class Rephrase
     emit(ctx, left, " || ", right)
   end
 
-  # Converts a :LIST AST node
+  # Converts a `:LIST` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_list(ctx, node)
@@ -330,7 +336,7 @@ class Rephrase
     emit(ctx, "]")
   end
 
-  # Converts a :LIST_EMBEDDED AST (fake) node
+  # Converts a `:LIST_EMBEDDED` AST (fake) node.
   # @param ctx [Hash] context object
   # @param node [Rephrase::FakeNode] AST node
   def on_list_embedded(ctx, node)
@@ -342,7 +348,7 @@ class Rephrase
     end
   end
 
-  # Converts a :HASH AST node
+  # Converts a `:HASH` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_hash(ctx, node)
@@ -360,7 +366,7 @@ class Rephrase
     emit(ctx, "}")
   end
 
-  # Converts a :ATTRASGN AST node
+  # Converts a `:ATTRASGN` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_attrasgn(ctx, node)
@@ -377,7 +383,7 @@ class Rephrase
     end
   end
 
-  # Converts a :RESCUE AST node
+  # Converts a `:RESCUE` AST node.
   # @param ctx [Hash] context object
   # @param node [RubyVM::AbstractSyntaxTree::Node] AST node
   def on_rescue(ctx, node)
@@ -386,7 +392,7 @@ class Rephrase
     emit(ctx, " rescue ", rescue_body.children[1])
   end
 
-  # Emits code into the context buffer
+  # Emits code into the context buffer.
   # @param ctx [Hash] context object
   # @param entries [Array<String, Symbol>] code entries
   def emit(ctx, *entries)
